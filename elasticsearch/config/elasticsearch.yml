@@ -32,3 +32,6 @@ xpack.security.http.ssl.client_authentication: optional
 
 # Monitoring
 xpack.monitoring.collection.enabled: true
+
+#api
+xpack.security.authc.api_key.enabled: true

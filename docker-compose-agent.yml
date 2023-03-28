@@ -1,0 +1,66 @@
+# steps here: https://www.elastic.co/guide/en/fleet/8.6/elastic-agent-container.html
+
+version: '3.8'
+
+networks:
+  network1:
+    name: elastic
+    external: true
+
+secrets:
+  elastic.ca:
+    file: ./secrets/certs/ca/ca.crt
+  elasticsearch.certificate:
+    file: ./secrets/certs/elasticsearch/elasticsearch.crt
+  elasticsearch.key:
+    file: ./secrets/certs/elasticsearch/elasticsearch.key
+  elastic-agent.certificate:
+    file: ./secrets/certs/elastic-agent/elastic-agent.crt
+  elastic-agent.key:
+    file: ./secrets/certs/elastic-agent/elastic-agent.key
+  kibana.certificate:
+    file: ./secrets/certs/kibana/kibana.crt
+services:
+  elastic-agent:
+    image: chrispang/elastic-agent-complete:${ELK_VERSION}
+    build:
+      context: elastic-agent/
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    platform: linux/amd64 
+    container_name: elastic-agent
+    restart: always
+    user: elastic-agent # note, synthetic browser monitors require this set to `elastic-agent`
+    environment:
+      # Fleet and Agent Config
+      FLEET_ENROLLMENT_TOKEN: bzZ5RElZY0J1cmhySHFuX0xTZ1A6dGZlMTNpdzBSR1NNSUNHTi1BMi1WZw
+      FLEET_ENROLL: 1
+      FLEET_URL: "https://127.0.0.1:8220"
+      FLEET_SERVER_ENABLE: true
+      # FLEET_SERVER_HOST: https://127.0.0.1
+      # FLEET_SERVER_PORT: 8220
+      FLEET_SERVER_ELASTICSEARCH_HOST: https://127.0.0.1:9200 #https://0.0.0.0 
+      FLEET_SERVER_SERVICE_TOKEN: AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE2Nzk5OTA2MTAyMTY6UlVlRDVKZndTdGVmSVotM3BaaDZvdw
+      FLEET_SERVER_POLICY_ID: fleet-server-policy
+      # Cert Config
+      CERTIFICATE_AUTHORITIES: /certs/ca.crt
+      FLEET_SERVER_CERT: /certs/elastic-agent.crt
+      FLEET_SERVER_CERT_KEY: /certs/elastic-agent.key
+      FLEET_SERVER_ELASTICSEARCH_CA: /certs/elasticsearch.crt
+      KIBANA_CA: /certs/kibana.crt
+    secrets:
+    - source: elastic.ca
+      target: /certs/ca.crt
+    - source: elastic-agent.certificate
+      target: /certs/elastic-agent.crt
+    - source: elastic-agent.key
+      target: /certs/elastic-agent.key
+    - source: elasticsearch.certificate
+      target: /certs/elasticsearch.crt
+    - source: kibana.certificate
+      target: /certs/kibana.crt
+    ports:
+      - 8220:8220
+      - 6791:6791
+    volumes:
+      - ./elastic-agent/config/elastic-agent.yml:/usr/share/elastic-agent/config/elastic-agent.yml

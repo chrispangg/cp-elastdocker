@@ -8,6 +8,7 @@ COMPOSE_NODES := -f docker-compose.yml -f docker-compose.nodes.yml
 ELK_SERVICES   := elasticsearch logstash kibana apm-server
 ELK_LOG_COLLECTION := filebeat
 ELK_MONITORING := elasticsearch-exporter logstash-exporter filebeat-cluster-logs
+ELK_AGENT := elastic-agent
 ELK_TOOLS  := rubban
 ELK_NODES := elasticsearch-1 elasticsearch-2
 ELK_MAIN_SERVICES := ${ELK_SERVICES} ${ELK_MONITORING} ${ELK_TOOLS}
@@ -38,6 +39,9 @@ all:		    ## Start Elk and all its component (ELK, Monitoring, and Tools).
 
 elk:		    ## Start ELK.
 	$(DOCKER_COMPOSE_COMMAND) up -d --build
+
+agent:
+	$(DOCKER_COMPOSE_COMMAND) -f docker-compose-agent.yml up -d --build ${ELK_AGENT}
 
 up:
 	@make elk
