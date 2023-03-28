@@ -3,9 +3,9 @@
 version: '3.8'
 
 networks:
-  network1:
-    name: elastic
-    external: true
+  default:
+    external:
+      name: elastic
 
 secrets:
   elastic.ca:
@@ -32,22 +32,29 @@ services:
     restart: always
     user: elastic-agent # note, synthetic browser monitors require this set to `elastic-agent`
     environment:
-      # Fleet and Agent Config
-      FLEET_ENROLLMENT_TOKEN: bzZ5RElZY0J1cmhySHFuX0xTZ1A6dGZlMTNpdzBSR1NNSUNHTi1BMi1WZw
+      # Agent Config
       FLEET_ENROLL: 1
-      FLEET_URL: "https://127.0.0.1:8220"
+      FLEET_URL: https://127.0.0.1:8220
+      FLEET_CA: /certs/elastic-agent.crt
+      # FLEET_ENROLLMENT_TOKEN: bzZ5RElZY0J1cmhySHFuX0xTZ1A6dGZlMTNpdzBSR1NNSUNHTi1BMi1WZw
+      # Fleet Config
       FLEET_SERVER_ENABLE: true
-      # FLEET_SERVER_HOST: https://127.0.0.1
-      # FLEET_SERVER_PORT: 8220
-      FLEET_SERVER_ELASTICSEARCH_HOST: https://127.0.0.1:9200 #https://0.0.0.0 
       FLEET_SERVER_SERVICE_TOKEN: AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE2Nzk5OTA2MTAyMTY6UlVlRDVKZndTdGVmSVotM3BaaDZvdw
       FLEET_SERVER_POLICY_ID: fleet-server-policy
-      # Cert Config
-      CERTIFICATE_AUTHORITIES: /certs/ca.crt
       FLEET_SERVER_CERT: /certs/elastic-agent.crt
       FLEET_SERVER_CERT_KEY: /certs/elastic-agent.key
-      FLEET_SERVER_ELASTICSEARCH_CA: /certs/elasticsearch.crt
+      # FLEET_SERVER_HOST: https://127.0.0.1
+      # FLEET_SERVER_PORT: 8220
+      # Common Config
+      ELASTICSEARCH_HOST: https://127.0.0.1:9200
+      ELASTICSEARCH_USERNAME: ${ELASTIC_USERNAME}
+      ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_CA: /certs/elasticsearch.crt #/certs/ca.crt 
+      KIBANA_HOST: https://127.0.0.1:5601
+      KIBANA_FLEET_USERNAME: ${ELASTIC_USERNAME}
+      KIBANA_FLEET_PASSWORD: ${ELASTIC_PASSWORD}
       KIBANA_CA: /certs/kibana.crt
+      # CERTIFICATE_AUTHORITIES: /certs/ca.crt
     secrets:
     - source: elastic.ca
       target: /certs/ca.crt
