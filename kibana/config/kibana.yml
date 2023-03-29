@@ -21,9 +21,13 @@ xpack.reporting.encryptionKey: RSCueeHKzrqzOVTJhkjt17EMnzM96LlN
 elasticsearch.serviceAccountToken: "${KIBANA_SERVICE_ACCOUNT_TOKEN}"
 elasticsearch.ssl.certificateAuthorities: [ "/certs/ca.crt" ]
 
-## Add policy for apm-server integration
+## Add policy for apm-server and fleet-server tegration
 xpack.fleet.packages:
   - name: apm
+    version: latest
+  - name: fleet_server
+    version: latest
+  - name: elastic_agent
     version: latest
 xpack.fleet.agentPolicies:
   - name: Agent policy 1
@@ -37,6 +41,13 @@ xpack.fleet.agentPolicies:
         id: default-apm
         package:
           name: apm
+  - name: Fleet-Server-Policy
+    id: fleet-server-policy
+    namespace: default
+    package_policies:
+      - name: fleet_server-1
+        package:
+          name: fleet_server
 
 ## Misc
 elasticsearch.requestTimeout: 90000

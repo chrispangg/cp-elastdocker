@@ -20,9 +20,9 @@ instances:
     ip:
       - 127.0.0.1
 
-  - name: elastic-agent
+  - name: fleet-server
     dns:
-      - elastic-agent
+      - fleet-server
       - localhost
     ip:
       - 127.0.0.1

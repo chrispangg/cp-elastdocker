@@ -5,10 +5,11 @@ COMPOSE_MONITORING := -f docker-compose.yml -f docker-compose.monitor.yml
 COMPOSE_LOGGING := -f docker-compose.yml -f docker-compose.logs.yml
 COMPOSE_TOOLS := -f docker-compose.yml -f docker-compose.tools.yml
 COMPOSE_NODES := -f docker-compose.yml -f docker-compose.nodes.yml
+COMPOSE_FLEET := -f docker-compose.fleet-server.yml
 ELK_SERVICES   := elasticsearch logstash kibana apm-server
 ELK_LOG_COLLECTION := filebeat
 ELK_MONITORING := elasticsearch-exporter logstash-exporter filebeat-cluster-logs
-ELK_AGENT := elastic-agent
+ELK_FLEET := fleet-server
 ELK_TOOLS  := rubban
 ELK_NODES := elasticsearch-1 elasticsearch-2
 ELK_MAIN_SERVICES := ${ELK_SERVICES} ${ELK_MONITORING} ${ELK_TOOLS}
@@ -40,8 +41,8 @@ all:		    ## Start Elk and all its component (ELK, Monitoring, and Tools).
 elk:		    ## Start ELK.
 	$(DOCKER_COMPOSE_COMMAND) up -d --build
 
-agent:
-	$(DOCKER_COMPOSE_COMMAND) -f docker-compose-agent.yml up -d --build ${ELK_AGENT}
+fleet:
+	$(DOCKER_COMPOSE_COMMAND) -f docker-compose-fleet.yml up -d --build ${ELK_FLEET}
 
 up:
 	@make elk
@@ -66,6 +67,9 @@ ps:				## Show all running containers.
 
 down:			## Down ELK and all its extra components.
 	$(DOCKER_COMPOSE_COMMAND) ${COMPOSE_ALL_FILES} down
+
+fleet-down:			## Down ELK and agent.
+	$(DOCKER_COMPOSE_COMMAND) ${COMPOSE_FLEET} down
 
 stop:			## Stop ELK and all its extra components.
 	$(DOCKER_COMPOSE_COMMAND) ${COMPOSE_ALL_FILES} stop ${ELK_ALL_SERVICES}
