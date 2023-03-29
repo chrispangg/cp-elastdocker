@@ -1,42 +1,387 @@
-# This config is intended to be used with a stand-alone fleet-server instance for development.
-ssl.certificate_authorities: [ "/certs/ca.crt" ]
-
-output:
-  elasticsearch:
-    hosts: https://localhost:9200
-    # service_token: '${ELASTICSEARCH_SERVICE_TOKEN}'
-    # ssl.ca_trusted_fingerprint: '${ELASTICSEARCH_CA_TRUSTED_FINGERPRINT}'
-
-# fleet:
-#   agent:
-#     id: '${FLEET_SERVER_AGENT_ID:dev-fleet-server}'
-
+id: agent-policy-1
+revision: 19
+outputs:
+  default:
+    type: elasticsearch
+    ssl.certificate_authorities:
+      - /certs/elasticsearch.crt
+    hosts:
+      - 'https://127.0.0.1:9200'
+      - 'https://localhost:9200'
+    username: '${ELASTIC_USERNAME}'
+    password: '${ELASTIC_PASSWORD}'
+output_permissions:
+  default:
+    _elastic_agent_monitoring:
+      indices:
+        - names:
+            - logs-elastic_agent.apm_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.apm_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.cloudbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.auditbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.elastic_agent-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.cloudbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.auditbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.endpoint_security-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.filebeat_input-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.endpoint_security-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.filebeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.filebeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.fleet_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.fleet_server-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.heartbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.filebeat_input-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.osquerybeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.metricbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.packetbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.metricbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.osquerybeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-elastic_agent.packetbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-elastic_agent.heartbeat-default
+          privileges:
+            - auto_configure
+            - create_doc
+    _elastic_agent_checks:
+      cluster:
+        - monitor
+    default-apm:
+      indices:
+        - names:
+            - logs-apm.app-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - logs-apm.error-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - traces-apm.rum-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-apm.internal-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - traces-apm.sampled-default
+          privileges:
+            - auto_configure
+            - create_doc
+            - maintenance
+            - monitor
+            - read
+        - names:
+            - traces-apm-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - metrics-apm.app.*-default
+          privileges:
+            - auto_configure
+            - create_doc
+    c1e82288-bc9e-4071-8b4f-ad2764e98f09-agent-policy-1-default:
+      indices:
+        - names:
+            - synthetics-browser-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - synthetics-browser.network-default
+          privileges:
+            - auto_configure
+            - create_doc
+        - names:
+            - synthetics-browser.screenshot-default
+          privileges:
+            - auto_configure
+            - create_doc
+agent:
+  download:
+    sourceURI: 'https://artifacts.elastic.co/downloads/'
+  monitoring:
+    enabled: true
+    use_output: default
+    namespace: default
+    logs: true
+    metrics: true
 inputs:
-  - type: fleet-server
-    policy.id: '${FLEET_SERVER_POLICY_ID:fleet-server-policy}'
-   server:
-     ssl:
-       enabled: true
-       certificate: /certs/elastic-agent.crt
-       key: /certs/elastic-agent.key
-       key_passphrase: /certs/elastic-agent.key
+  - id: default-apm
+    name: apm-1
+    revision: 1
+    type: apm
+    use_output: default
+    meta:
+      package:
+        name: apm
+        version: 8.6.2
+    data_stream:
+      namespace: default
+    package_policy_id: default-apm
+    apm-server:
+      auth:
+        anonymous:
+          enabled: true
+          allow_agent:
+            - rum-js
+            - js-base
+            - iOS/swift
+          allow_service: null
+          rate_limit:
+            event_limit: 300
+            ip_limit: 1000
+        api_key:
+          enabled: false
+          limit: 100
+        secret_token: null
+      capture_personal_data: true
+      idle_timeout: 45s
+      default_service_environment: null
+      expvar.enabled: false
+      pprof.enabled: false
+      host: 'localhost:8200'
+      max_connections: 0
+      max_event_size: 307200
+      max_header_size: 1048576
+      read_timeout: 3600s
+      response_headers: null
+      aggregation:
+        service:
+          enabled: false
+      java_attacher:
+        enabled: false
+        discovery-rules: null
+        download-agent-version: null
+      rum:
+        enabled: true
+        allow_headers: null
+        allow_origins:
+          - '*'
+        exclude_from_grouping: ^/webpack
+        library_pattern: node_modules|bower_components|~
+        response_headers: null
+      shutdown_timeout: 30s
+      ssl:
+        enabled: false
+        certificate: null
+        key: null
+        key_passphrase: null
+        supported_protocols:
+          - TLSv1.1
+          - TLSv1.2
+          - TLSv1.3
+        cipher_suites: null
+        curve_types: null
+      write_timeout: 30s
+      sampling:
+        tail:
+          enabled: false
+          interval: 1m
+          policies:
+            - sample_rate: 0.1
+          storage_limit: 3GB
+  - id: >-
+      synthetics/browser-synthetics-c1e82288-bc9e-4071-8b4f-ad2764e98f09-agent-policy-1-default
+    name: Test-Home-default
+    revision: 1
+    type: synthetics/browser
+    use_output: default
+    meta:
+      package:
+        name: synthetics
+        version: 0.11.5
+    data_stream:
+      namespace: default
+    package_policy_id: c1e82288-bc9e-4071-8b4f-ad2764e98f09-agent-policy-1-default
+    streams:
+      - id: c1e82288-bc9e-4071-8b4f-ad2764e98f09
+        name: Test
+        type: browser
+        enabled: true
+        data_stream:
+          dataset: browser
+          type: synthetics
+        __ui:
+          script_source:
+            is_generated_script: false
+            file_name: ''
+          is_zip_url_tls_enabled: false
+          is_tls_enabled: false
+        origin: ui
+        run_from.id: Home
+        run_from.geo.name: Home
+        schedule: '@every 10m'
+        timeout: null
+        throttling: 5d/3u/20l
+        source.inline.script: |-
+          const { journey, step, expect } = require('@elastic/synthetics');
 
-logging:
-  to_stderr: true # Force the logging output to stderr
-  pretty: true
-  level: '${LOG_LEVEL:DEBUG}'
-
-# Enables the stats endpoint under http://localhost:5601 by default.
-# Additional stats can be found under http://127.0.0.1:5066/stats and http://127.0.0.1:5066/state
-http.enabled: true
-http.host: http://127.0.0.1
-http.port: 5601
-
-agent.monitoring:
-  enabled: true 
-  logs: true 
-  metrics: true 
-  http:
-      enabled: true 
-      host: localhost 
-      port: 6791 
+          journey('Recorded journey', async ({ page, context }) => {
+            let page1;
+            step('Go to https://www.google.com/?gws_rd=ssl', async () => {
+              await page.goto('https://www.google.com/?gws_rd=ssl');
+            });
+            step('Click [aria-label="Search"]', async () => {
+              await page.locator('[aria-label="Search"]').click();
+              expect(await page.isVisible('[aria-label="Search"]')).toBeTruthy();
+            });
+            step('Fill [aria-label="Search"]', async () => {
+              await page.locator('[aria-label="Search"]').fill('hello world');
+              expect(await page.isVisible('[aria-label="Search"]')).toBeTruthy();
+            });
+            step('Press Enter', async () => {
+              await Promise.all([
+                page.waitForNavigation(),
+                page.locator('[aria-label="Search"]').press('Enter')
+              ]);
+              expect(await page.isVisible('[aria-label="Search"]')).toBeTruthy();
+            });
+            step('Click text=/.*Complementary resultsSee results about"Hello, World!" programComputer programCom.*/', async () => {
+              await page.locator('text=/.*Complementary resultsSee results about"Hello, World!" programComputer programCom.*/').click();
+              expect(await page.isVisible('text=/.*Complementary resultsSee results about"Hello, World!" programComputer programCom.*/')).toBeTruthy();
+            });
+            step('Click #hdtb-msb >> text=Images', async () => {
+              await Promise.all([
+                page.waitForNavigation(),
+                page.locator('#hdtb-msb >> text=Images').click()
+              ]);
+              expect(await page.isVisible('#hdtb-msb >> text=Images')).toBeTruthy();
+            });
+            step('Click text=Hello World (film) - WikipediaWikipediaHello World (film) - Wikipedia >> a[role="button"]', async () => {
+              await page.locator('text=Hello World (film) - WikipediaWikipediaHello World (film) - Wikipedia >> a[role="button"]').click();
+              expect(page.url()).toBe('https://www.google.com/search?q=hello+world&source=lnms&tbm=isch&sa=X&ved=2ahUKEwi5ofzj1Pv9AhUDplYBHZKxBTUQ_AUoAXoECAEQAw&biw=1280&bih=720&dpr=1#imgrc=RHwFJyk6IopL6M');
+              expect(await page.isVisible('text=Hello World (film) - WikipediaWikipediaHello World (film) - Wikipedia >> a[role="button"]')).toBeTruthy();
+            });
+            step('Click text=Hello World (film) - WikipediaVisit >> span', async () => {
+              [page1] = await Promise.all([
+                page.waitForEvent('popup'),
+                page.locator('text=Hello World (film) - WikipediaVisit >> span').click()
+              ]);
+              expect(await page.isVisible('text=Hello World (film) - WikipediaVisit >> span')).toBeTruthy();
+            });
+          });
+        screenshots: 'on'
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                monitor.fleet_managed: true
+                config_id: c1e82288-bc9e-4071-8b4f-ad2764e98f09
+      - id: >-
+          synthetics/browser-browser.network-c1e82288-bc9e-4071-8b4f-ad2764e98f09-agent-policy-1-default
+        data_stream:
+          dataset: browser.network
+          type: synthetics
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                monitor.fleet_managed: true
+      - id: >-
+          synthetics/browser-browser.screenshot-c1e82288-bc9e-4071-8b4f-ad2764e98f09-agent-policy-1-default
+        data_stream:
+          dataset: browser.screenshot
+          type: synthetics
+        processors:
+          - add_fields:
+              target: ''
+              fields:
+                monitor.fleet_managed: true
