@@ -29,6 +29,10 @@ secrets:
     file: ./secrets/certs/apm-server/apm-server.crt
   apm-server.key:
     file: ./secrets/certs/apm-server/apm-server.key
+  fleet-server.certificate:
+    file: ./secrets/certs/fleet-server/fleet-server.crt
+  fleet-server.key:
+    file: ./secrets/certs/fleet-server/fleet-server.key
 
 services:
   elasticsearch:
@@ -148,3 +152,51 @@ services:
         target: /certs/apm-server.crt
       - source: apm-server.key
         target: /certs/apm-server.key
+        
+  # fleet-server:
+  #   depends_on:
+  #       elasticsearch:
+  #         condition: service_healthy
+  #   image: chrispang/elastic-agent-complete:${ELK_VERSION}
+  #   build:
+  #     context: fleet-server/
+  #     args:
+  #       ELK_VERSION: ${ELK_VERSION}
+  #   platform: linux/amd64 
+  #   container_name: fleet-server
+  #   restart: always
+  #   user: elastic-agent #elastic-agent # note, synthetic browser monitors require this set to `elastic-agent`
+  #   environment:
+  #     FLEET_ENROLL: 1
+  #     FLEET_URL: https://fleet-server:8220
+  #     FLEET_CA: /certs/ca.crt
+  #     FLEET_SERVER_ENABLE: 1
+  #     KIBANA_FLEET_SETUP: 1
+  #     FLEET_SERVER_POLICY_ID: fleet-server-policy
+  #     FLEET_SERVER_CERT: /certs/fleet-server.crt
+  #     FLEET_SERVER_CERT_KEY: /certs/fleet-server.key
+  #     FLEET_SERVER_ELASTICSEARCH_CA: /certs/ca.crt
+  #     KIBANA_FLEET_CA: /certs/ca.crt
+  #     # Common Config
+  #     FLEET_SERVER_ELASTICSEARCH_HOST: https://elasticsearch:9200
+  #     ELASTICSEARCH_USERNAME: ${ELASTIC_USERNAME}
+  #     ELASTICSEARCH_PASSWORD: ${ELASTIC_PASSWORD}
+  #     KIBANA_HOST: https://kibana:5601
+  #     KIBANA_FLEET_USERNAME: ${ELASTIC_USERNAME}
+  #     KIBANA_FLEET_PASSWORD: ${ELASTIC_PASSWORD}
+  #   secrets:
+  #   - source: elastic.ca
+  #     target: /certs/ca.crt
+  #   - source: fleet-server.certificate
+  #     target: /certs/fleet-server.crt
+  #   - source: fleet-server.key
+  #     target: /certs/fleet-server.key
+  #   - source: elasticsearch.certificate
+  #     target: /certs/elasticsearch.crt
+  #   - source: kibana.certificate
+  #     target: /certs/kibana.crt
+  #   ports:
+  #     - 8220:8220
+  #     - 6791:6791
+  #   volumes:
+  #     - ./elastic-agent/config/fleet-server.yml:/usr/share/elastic-agent/config/fleet-server.yml:ro

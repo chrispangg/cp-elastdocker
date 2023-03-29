@@ -25,7 +25,7 @@ services:
   fleet-server:
     image: chrispang/elastic-agent-complete:${ELK_VERSION}
     build:
-      context: elastic-agent/
+      context: fleet-server/
       args:
         ELK_VERSION: ${ELK_VERSION}
     platform: linux/amd64 
@@ -65,4 +65,4 @@ services:
       - 8220:8220
       - 6791:6791
     volumes:
-      - ./elastic-agent/config/elastic-agent.yml:/usr/share/elastic-agent/config/elastic-agent.yml:ro
+      - ./elastic-agent/config/fleet-server.yml:/usr/share/fleet-server/config/fleet-server.yml:ro
